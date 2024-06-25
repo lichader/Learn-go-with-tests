@@ -1,26 +1,29 @@
 package main
 
-import "fmt"
-
 func Sum(numbers []int) (sum int) {
-	for index, number := range numbers {
-		fmt.Printf("index: %d, number: %d\n", index, number)
-		sum += number
+	reduce := func(a, b int) int {
+		return a + b
 	}
-	return
+
+	return Reduce(numbers, reduce, 0)
 }
 
 func SumAllTails(numbers ...[]int) []int {
-	var sums []int
-	for _, number := range numbers {
-
-		if len(number) == 0 {
-			sums = append(sums, 0)
-			continue
+	reduce := func(acc, x []int) []int {
+		if len(x) == 0 {
+			return append(acc, 0)
+		} else {
+			return append(acc, Sum(x[1:]))
 		}
-
-		tail := number[1:]
-		sums = append(sums, Sum(tail))
 	}
-	return sums
+	return Reduce(numbers, reduce, []int{})
+}
+
+func Reduce[A any](collection []A, f func(A, A) A, initialValue A) A {
+	result := initialValue
+	for _, item := range collection {
+		result = f(result, item)
+	}
+
+	return result
 }

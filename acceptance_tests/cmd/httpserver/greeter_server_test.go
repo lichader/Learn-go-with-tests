@@ -2,10 +2,12 @@ package main_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
-	go_specs_greet "github.com/quii/go-specs-greet"
+	"github.com/quii/go-specs-greet/adapters"
+	httpserver "github.com/quii/go-specs-greet/adapters/httpserver"
 	"github.com/quii/go-specs-greet/specifications"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -33,6 +35,11 @@ func TestGreeterServer(t *testing.T) {
 		assert.NoError(t, container.Terminate(ctx))
 	})
 
-	driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
+	port := "8080"
+	dockerFilePath := "./cmd/httpserver/Dockerfile"
+	baseURL := fmt.Sprintf("http://localhost:%s", port)
+	driver := httpserver.Driver{BaseURL: baseURL}
+
+	adapters.StartDockerServer(t, port, dockerFilePath)
 	specifications.GreetSpecification(t, driver)
 }

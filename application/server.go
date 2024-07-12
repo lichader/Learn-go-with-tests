@@ -40,7 +40,7 @@ func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (p *PlayerServer) getLeagueTable() []Player {
+func (p *PlayerServer) getLeagueTable() League {
 	return p.store.GetLeague()
 }
 

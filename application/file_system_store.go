@@ -26,23 +26,24 @@ func (f *FileSystemPlayerStore) NewLeague() (League, error) {
 }
 
 func (f *FileSystemPlayerStore) GetPlayerScore(name string) int {
-	var wins int
-	for _, player := range f.GetLeague() {
-		if player.Name == name {
-			wins = player.Wins
-			break
-		}
+	player := f.GetLeague().Find(name)
+
+	if player != nil {
+		return player.Wins
 	}
-	return wins
+
+	return 0
 }
 
 func (f *FileSystemPlayerStore) RecordWin(name string) {
 	league := f.GetLeague()
+	player := league.Find(name)
 
-	for i, player := range league {
-		if player.Name == name {
-			league[i].Wins++
-		}
+	if player != nil {
+		player.Wins++
+	} else {
+		newPlayer := Player{Name: name, Wins: 1}
+		league = append(league, newPlayer)
 	}
 
 	f.database.Seek(0, io.SeekStart)

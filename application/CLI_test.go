@@ -45,26 +45,6 @@ func TestCLI(t *testing.T) {
 		assertFinishCalledWith(t, game, "Cleo")
 	})
 
-	t.Run("it prompts the user to enter the number of players", func(t *testing.T) {
-		stdout := &bytes.Buffer{}
-		in := strings.NewReader("7\n")
-		game := &GameSpy{}
-
-		cli := poker.NewCLI(in, stdout, game)
-		cli.PlayPoker()
-
-		got := stdout.String()
-		want := poker.PlayerPrompt
-
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
-
-		if game.StartedWith != 7 {
-			t.Errorf("wanted Start called with 7 but got %d", game.StartedWith)
-		}
-	})
-
 	t.Run(
 		"it prints an error when a non numeric value is entered and does not start the game",
 		func(t *testing.T) {
@@ -75,11 +55,22 @@ func TestCLI(t *testing.T) {
 			cli := poker.NewCLI(in, stdout, game)
 			cli.PlayPoker()
 
-			if game.StartCalled {
-				t.Errorf("game should not have started")
-			}
+			assertGameNotStarted(t, game)
 		},
 	)
+
+	t.Run("it prints an error when the winer is declared incorrectly", func(t *testing.T) {
+		game := &GameSpy{}
+		stdout := &bytes.Buffer{}
+
+		in := userSends("3", "Lloyd is a killer")
+		cli := poker.NewCLI(in, stdout, game)
+
+		cli.PlayPoker()
+
+		assertGameNotFinished(t, game)
+		assertMessagesSentToUser(t, stdout, poker.PlayerPrompt, poker.BadPlayerInputErrMsg)
+	})
 }
 
 type scheduledAlert struct {

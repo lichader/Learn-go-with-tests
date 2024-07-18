@@ -44,7 +44,3 @@ func (cli *CLI) readLine() string {
 	cli.In.Scan()
 	return cli.In.Text()
 }
-
-type BlindAlerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
-}

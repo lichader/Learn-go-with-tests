@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"text/template"
 )
 
 const jsonContentType = "application/json"
@@ -23,6 +24,20 @@ func (p *PlayerServer) playersHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		p.processWin(w, player)
 	}
+}
+
+func (p *PlayerServer) game(w http.ResponseWriter, r *http.Request) {
+	templ, err := template.ParseFiles("../../game.html")
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Sprintf("problem loading template %s", err.Error()),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	templ.Execute(w, nil)
 }
 
 func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
@@ -76,6 +91,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 
 	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
 	router.Handle("/players/", http.HandlerFunc(p.playersHandler))
+	router.Handle("/game", http.HandlerFunc(p.game))
 
 	p.Handler = router
 
